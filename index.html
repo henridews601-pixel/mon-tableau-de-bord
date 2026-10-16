@@ -1,0 +1,2366 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  CheckCircle2, 
+  Circle, 
+  Plus, 
+  Trash2, 
+  Edit2, 
+  Flame, 
+  Trophy, 
+  Calendar, 
+  Target, 
+  TrendingUp, 
+  Sparkles, 
+  RotateCcw, 
+  Sun, 
+  Moon, 
+  Award,
+  BookOpen,
+  Dumbbell,
+  Car,
+  Star,
+  Check,
+  X,
+  ChevronRight,
+  Clock,
+  Filter,
+  Wand2,
+  Brain,
+  Lightbulb,
+  Loader2,
+  ListChecks,
+  ChevronDown,
+  ChevronUp,
+  Globe,
+  HelpCircle,
+  Eraser
+} from 'lucide-react';
+
+// --- TRADUCTIONS MULTILINGUES (DE / FR / EN) ---
+const TRANSLATIONS = {
+  de: {
+    appTitle: "Fokus & Erfolgs-Kompass",
+    badgeTracker: "Wochen-Tracker",
+    appSubtitle: "Schritt für Schritt zu deinen täglichen Zielen und Meilensteinen",
+    today: "Heute",
+    resetTitle: "Auf Beispieldaten zurücksetzen",
+    zeroCountersBtn: "Zähler auf 0",
+    zeroCountersTitle: "Alle Zähler & Häkchen auf null setzen",
+    tutorialBtn: "Anleitung",
+    editBtnLabel: "Bearbeiten",
+    deleteBtnLabel: "Löschen",
+    lightMode: "Helles Design aktivieren",
+    darkMode: "Dunkles Design aktivieren",
+    activeStreak: "Aktiver Streak",
+    day: "Tag",
+    days: "Tage",
+    keepGoing: "Bleib am Ball!",
+    weeklyBalance: "Wochen-Bilanz",
+    ofGoals: "Zielen",
+    todayDone: "Heute erledigt",
+    weeklySuccessRate: "Wochen-Erfolgsquote",
+    excellent: "Exzellent!",
+    goodTrack: "Guter Kurs",
+    expandable: "Ausbaufähig",
+    countdownGoal: "Countdown-Ziel",
+    daysLeft: "Noch",
+    daysPassed: "Tage vergangen",
+    editMilestone: "Meilenstein bearbeiten",
+    milestonePlaceholder: "Name des Meilensteins",
+    aiCoachBadge: "Gemini KI-Erfolgs-Coach",
+    aiCoachDefaultTitle: "Persönliches KI-Coaching für deine Woche",
+    aiCoachDefaultDesc: "Lass deine aktuelle Erfolgsquote, deine Gewohnheits-Matrix und deinen nächsten Meilenstein von Gemini analysieren und erhalte maßgeschneiderte Fokus-Impulse.",
+    analyzingWeek: "Analysiere Woche...",
+    updateCoaching: "Coaching aktualisieren",
+    startAiAnalysis: "KI-Wochen-Analyse starten",
+    strategicFocusTip: "Strategischer Fokus-Tipp",
+    keyLeverToday: "Dein wichtigster Hebel für heute",
+    dailyGoalsTitle: "Tägliche Ziele",
+    dailyGoalsDesc: "Hake erledigte Aufgaben ab oder nutze den KI-Planer für konkrete Zwischenschritte.",
+    aiIdeasBtn: "KI-Ideen",
+    newGoalBtn: "Neues Ziel",
+    dailyProgress: "Tagesfortschritt",
+    allDoneBanner: "Stark! Alle Ziele für diesen Tag wurden vollständig erreicht! 🌟",
+    allFilter: "Alle",
+    aiGeneratorTitle: "KI-Gewohnheits-Generator (Gemini)",
+    aiGeneratorDesc: "Gib ein großes Ziel ein – die KI zerlegt es in tägliche Routinen.",
+    aiPromptPlaceholder: "z.B. C1-Prüfung bestehen, Französisch Vokabeln, Englisch Business, 10km laufen...",
+    generating: "Generiere...",
+    createSuggestions: "Vorschläge erstellen",
+    aiRecommendations: "KI-Empfehlungen zum Hinzufügen:",
+    priorityLabel: "Priorität",
+    adoptBtn: "Übernehmen",
+    createNewGoalTitle: "Neues tägliches Ziel erstellen",
+    goalTitleLabel: "Titel / Beschreibung des Ziels",
+    goalTitlePlaceholder: "z.B. 30 Minuten Französisch Hörverstehen oder 20 Seiten lesen...",
+    categoryLabel: "Kategorie / Rubrik",
+    cancelBtn: "Abbrechen",
+    saveGoalBtn: "Ziel speichern",
+    saveBtn: "Speichern",
+    noGoalsTitle: "Keine Ziele in dieser Ansicht gefunden.",
+    noGoalsDesc: "Erstelle ein neues Ziel oder wähle oben eine andere Rubrik.",
+    aiPlanHide: "KI-Plan ausblenden",
+    aiStepsBtn: "KI-Schritte",
+    focusPlanTitle: "Dein 3-Schritte-Fokusplan",
+    tipRetroactive: "Tipp: Klicke auf einen anderen Wochentag, um vergangene Tage nachzutragen.",
+    checkAllFor: "Alle abhaken für",
+    weeklyCurveTitle: "Wochen-Aktivitätskurve",
+    weeklyCurveDesc: "Erreichte Ziele pro Tag (Mo – So)",
+    weekAvg: "Woche",
+    habitGridTitle: "Gewohnheits-Matrix (Habit Grid)",
+    habitGridDesc: "Klicke auf ein beliebiges Feld, um Ziele auch rückwirkend für die Woche abzuhaken.",
+    goalCol: "Ziel",
+    winsBadge: "Wochenreflexion & Erfolgs-Logbuch",
+    winsTitle: "Meine Erfolge dieser Woche",
+    winsDesc: "Halte besondere Momente, Lernfortschritte (Deutsch, Französisch, Englisch) oder überwundene Hürden fest.",
+    winsPlaceholder: "Worauf bist du diese Woche besonders stolz? (z.B. Schwierige Grammatik verstanden, Dialog auf Französisch geführt...)",
+    aiWinHelper: "KI-Formulierungshilfe aus meinen erledigten Zielen",
+    addWinBtn: "Erfolg eintragen",
+    noWinsTitle: "Noch keine Erfolge für diese Woche notiert.",
+    noWinsDesc: "Trage links deinen ersten kleinen oder großen Meilenstein ein!",
+    proudMoment: "Stolzer Moment festgehalten",
+    resetModalTitle: "Auf Beispieldaten zurücksetzen?",
+    resetModalSubtitle: "Deine eigenen Einträge werden durch die Standard-Ziele ersetzt.",
+    resetModalText: "Möchtest du wirklich alle aktuellen Ziele, Häkchen und Erfolge dieser Woche auf die vorinstallierten Beispieldaten (Deutsch, Französisch, Englisch, Führerschein, Fitness) zurücksetzen?",
+    confirmResetBtn: "Ja, zurücksetzen",
+    celebrationTitle: "Fantastische Leistung! 🎉",
+    celebrationDesc: "Du hast alle deine Ziele für diesen Tag erledigt!",
+    daysNames: {
+      Mo: { label: 'Montag', short: 'Mo' },
+      Di: { label: 'Dienstag', short: 'Di' },
+      Mi: { label: 'Mittwoch', short: 'Mi' },
+      Do: { label: 'Donnerstag', short: 'Do' },
+      Fr: { label: 'Freitag', short: 'Fr' },
+      Sa: { label: 'Samstag', short: 'Sa' },
+      So: { label: 'Sonntag', short: 'So' }
+    },
+    categories: {
+      'Deutsch (Allemand)': 'Deutsch 🇩🇪',
+      'Französisch (Français)': 'Französisch 🇫🇷',
+      'Englisch (Anglais)': 'Englisch 🇬🇧',
+      'Sprachen & Lernen': 'Sprachen & Lernen',
+      'Fitness & Gesundheit': 'Fitness & Gesundheit',
+      'Führerschein / Alltag': 'Führerschein / Alltag',
+      'Sonstiges': 'Sonstiges'
+    },
+    priorities: {
+      'Hoch': 'Hoch',
+      'Mittel': 'Mittel',
+      'Niedrig': 'Niedrig'
+    }
+  },
+  fr: {
+    appTitle: "Boussole Focus & Réussite",
+    badgeTracker: "Suivi Hebdo",
+    appSubtitle: "Pas à pas vers vos objectifs quotidiens et vos langues (FR / DE / EN)",
+    today: "Aujourd'hui",
+    resetTitle: "Réinitialiser les objectifs par défaut",
+    zeroCountersBtn: "Compteurs à 0",
+    zeroCountersTitle: "Remettre tous les compteurs de la semaine à zéro",
+    tutorialBtn: "Tuto (FR)",
+    editBtnLabel: "Modifier",
+    deleteBtnLabel: "Supprimer",
+    lightMode: "Activer le mode clair",
+    darkMode: "Activer le mode sombre",
+    activeStreak: "Série Active",
+    day: "Jour",
+    days: "Jours",
+    keepGoing: "Continuez comme ça !",
+    weeklyBalance: "Bilan de la Semaine",
+    ofGoals: "objectifs",
+    todayDone: "Complété aujourd'hui",
+    weeklySuccessRate: "Taux de Réussite",
+    excellent: "Excellent !",
+    goodTrack: "En bonne voie",
+    expandable: "À développer",
+    countdownGoal: "Objectif Compte à Rebours",
+    daysLeft: "J-",
+    daysPassed: "jours passés",
+    editMilestone: "Modifier l'échéance",
+    milestonePlaceholder: "Nom de l'objectif principal",
+    aiCoachBadge: "Coach IA Gemini",
+    aiCoachDefaultTitle: "Coaching IA personnalisé pour votre semaine",
+    aiCoachDefaultDesc: "Laissez Gemini analyser votre taux de réussite, vos langues (Français, Allemand, Anglais) et votre prochain jalon pour recevoir des conseils sur mesure.",
+    analyzingWeek: "Analyse en cours...",
+    updateCoaching: "Actualiser le coaching",
+    startAiAnalysis: "Lancer l'analyse IA",
+    strategicFocusTip: "Conseil Stratégique Focus",
+    keyLeverToday: "Votre levier principal aujourd'hui",
+    dailyGoalsTitle: "Objectifs Quotidiens",
+    dailyGoalsDesc: "Cochez vos tâches accomplies ou utilisez le planificateur IA pour obtenir des sous-étapes.",
+    aiIdeasBtn: "Idées IA",
+    newGoalBtn: "Nouvel Objectif",
+    dailyProgress: "Progression du jour",
+    allDoneBanner: "Bravo ! Tous les objectifs de cette journée ont été atteints ! 🌟",
+    allFilter: "Tous",
+    aiGeneratorTitle: "Générateur d'Habitudes IA (Gemini)",
+    aiGeneratorDesc: "Entrez un grand objectif (ex. Français, Allemand, Anglais) – l'IA le découpe en routines.",
+    aiPromptPlaceholder: "ex. Réussir l'examen C1 Allemand, parler Anglais fluide, grammaire Française...",
+    generating: "Génération...",
+    createSuggestions: "Générer des idées",
+    aiRecommendations: "Recommandations IA à ajouter :",
+    priorityLabel: "Priorité",
+    adoptBtn: "Ajouter",
+    createNewGoalTitle: "Créer un nouvel objectif quotidien",
+    goalTitleLabel: "Titre / Description de l'objectif",
+    goalTitlePlaceholder: "ex. 30 min d'écoute en Allemand ou réviser 20 mots en Anglais...",
+    categoryLabel: "Rubrique / Catégorie",
+    cancelBtn: "Annuler",
+    saveGoalBtn: "Enregistrer l'objectif",
+    saveBtn: "Enregistrer",
+    noGoalsTitle: "Aucun objectif trouvé dans cette rubrique.",
+    noGoalsDesc: "Créez un nouvel objectif ou sélectionnez une autre rubrique ci-dessus.",
+    aiPlanHide: "Masquer le plan IA",
+    aiStepsBtn: "Étapes IA",
+    focusPlanTitle: "Votre plan d'action en 3 étapes",
+    tipRetroactive: "Astuce : Cliquez sur un autre jour pour cocher vos progrès passés.",
+    checkAllFor: "Tout cocher pour",
+    weeklyCurveTitle: "Courbe d'Activité Hebdomadaire",
+    weeklyCurveDesc: "Objectifs atteints par jour (Lun – Dim)",
+    weekAvg: "Semaine",
+    habitGridTitle: "Grille des Habitudes (Habit Grid)",
+    habitGridDesc: "Cliquez sur n'importe quelle case pour valider vos objectifs sur toute la semaine.",
+    goalCol: "Objectif",
+    winsBadge: "Réflexion & Journal des Réussites",
+    winsTitle: "Mes Réussites de la Semaine",
+    winsDesc: "Notez vos moments de fierté, vos progrès en langues (Français, Allemand, Anglais) ou les obstacles surmontés.",
+    winsPlaceholder: "De quoi êtes-vous particulièrement fier cette semaine ? (ex. Rédaction en allemand réussie, conversation en anglais...)",
+    aiWinHelper: "Aide à la rédaction IA basée sur mes objectifs accomplis",
+    addWinBtn: "Ajouter la réussite",
+    noWinsTitle: "Aucune réussite notée pour cette semaine.",
+    noWinsDesc: "Ajoutez votre première victoire à gauche !",
+    proudMoment: "Moment de fierté enregistré",
+    resetModalTitle: "Réinitialiser les données d'exemple ?",
+    resetModalSubtitle: "Vos entrées actuelles seront remplacées par les objectifs par défaut.",
+    resetModalText: "Voulez-vous vraiment réinitialiser tous les objectifs et réussites avec les exemples par défaut (Français, Allemand, Anglais, Permis, Fitness) ?",
+    confirmResetBtn: "Oui, réinitialiser",
+    celebrationTitle: "Performance Fantastique ! 🎉",
+    celebrationDesc: "Vous avez terminé tous vos objectifs pour cette journée !",
+    daysNames: {
+      Mo: { label: 'Lundi', short: 'Lun' },
+      Di: { label: 'Mardi', short: 'Mar' },
+      Mi: { label: 'Mercredi', short: 'Mer' },
+      Do: { label: 'Jeudi', short: 'Jeu' },
+      Fr: { label: 'Vendredi', short: 'Ven' },
+      Sa: { label: 'Samedi', short: 'Sam' },
+      So: { label: 'Dimanche', short: 'Dim' }
+    },
+    categories: {
+      'Deutsch (Allemand)': 'Allemand 🇩🇪',
+      'Französisch (Français)': 'Français 🇫🇷',
+      'Englisch (Anglais)': 'Anglais 🇬🇧',
+      'Sprachen & Lernen': 'Langues & Études',
+      'Fitness & Gesundheit': 'Fitness & Santé',
+      'Führerschein / Alltag': 'Permis / Quotidien',
+      'Sonstiges': 'Autres'
+    },
+    priorities: {
+      'Hoch': 'Haute',
+      'Mittel': 'Moyenne',
+      'Niedrig': 'Basse'
+    }
+  },
+  en: {
+    appTitle: "Focus & Success Compass",
+    badgeTracker: "Weekly Tracker",
+    appSubtitle: "Step by step towards your daily goals, languages (FR / DE / EN) and milestones",
+    today: "Today",
+    resetTitle: "Reset to sample data",
+    zeroCountersBtn: "Zero Counters",
+    zeroCountersTitle: "Reset all weekly counters and checkmarks to zero",
+    tutorialBtn: "Guide",
+    editBtnLabel: "Edit",
+    deleteBtnLabel: "Delete",
+    lightMode: "Switch to Light Mode",
+    darkMode: "Switch to Dark Mode",
+    activeStreak: "Active Streak",
+    day: "Day",
+    days: "Days",
+    keepGoing: "Keep it up!",
+    weeklyBalance: "Weekly Balance",
+    ofGoals: "goals",
+    todayDone: "Completed today",
+    weeklySuccessRate: "Weekly Success Rate",
+    excellent: "Excellent!",
+    goodTrack: "On Track",
+    expandable: "Room to grow",
+    countdownGoal: "Countdown Milestone",
+    daysLeft: "Left:",
+    daysPassed: "days ago",
+    editMilestone: "Edit Milestone",
+    milestonePlaceholder: "Milestone title",
+    aiCoachBadge: "Gemini AI Success Coach",
+    aiCoachDefaultTitle: "Personal AI Coaching for Your Week",
+    aiCoachDefaultDesc: "Let Gemini analyze your success rate, language habits (French, German, English), and next milestone for tailored focus advice.",
+    analyzingWeek: "Analyzing week...",
+    updateCoaching: "Refresh Coaching",
+    startAiAnalysis: "Start AI Weekly Analysis",
+    strategicFocusTip: "Strategic Focus Tip",
+    keyLeverToday: "Your Key Lever for Today",
+    dailyGoalsTitle: "Daily Goals",
+    dailyGoalsDesc: "Check off completed tasks or use the AI planner for actionable mini-steps.",
+    aiIdeasBtn: "AI Ideas",
+    newGoalBtn: "New Goal",
+    dailyProgress: "Daily Progress",
+    allDoneBanner: "Awesome! All goals for this day have been completed! 🌟",
+    allFilter: "All",
+    aiGeneratorTitle: "AI Habit Generator (Gemini)",
+    aiGeneratorDesc: "Enter a major goal (e.g. French, German, English) – AI breaks it down into daily routines.",
+    aiPromptPlaceholder: "e.g. Pass German C1 exam, fluent Business English, French grammar...",
+    generating: "Generating...",
+    createSuggestions: "Create Suggestions",
+    aiRecommendations: "AI Recommendations to add:",
+    priorityLabel: "Priority",
+    adoptBtn: "Add",
+    createNewGoalTitle: "Create New Daily Goal",
+    goalTitleLabel: "Goal Title / Description",
+    goalTitlePlaceholder: "e.g. 30 mins French listening or review 20 German words...",
+    categoryLabel: "Category / Section",
+    cancelBtn: "Cancel",
+    saveGoalBtn: "Save Goal",
+    saveBtn: "Save",
+    noGoalsTitle: "No goals found in this category.",
+    noGoalsDesc: "Create a new goal or select another category above.",
+    aiPlanHide: "Hide AI Plan",
+    aiStepsBtn: "AI Steps",
+    focusPlanTitle: "Your 3-Step Focus Plan",
+    tipRetroactive: "Tip: Click another weekday to log past days retroactively.",
+    checkAllFor: "Check all for",
+    weeklyCurveTitle: "Weekly Activity Curve",
+    weeklyCurveDesc: "Completed goals per day (Mon – Sun)",
+    weekAvg: "Week",
+    habitGridTitle: "Habit Matrix (Habit Grid)",
+    habitGridDesc: "Click any box to check off goals across the entire week.",
+    goalCol: "Goal",
+    winsBadge: "Weekly Reflection & Win Log",
+    winsTitle: "My Wins of the Week",
+    winsDesc: "Record proud moments, language breakthroughs (French, German, English), or obstacles overcome.",
+    winsPlaceholder: "What are you especially proud of this week? (e.g. Mastered German grammar, spoke English confidently...)",
+    aiWinHelper: "AI writing helper based on my completed goals",
+    addWinBtn: "Log Win",
+    noWinsTitle: "No wins logged for this week yet.",
+    noWinsDesc: "Enter your first small or big milestone on the left!",
+    proudMoment: "Proud moment captured",
+    resetModalTitle: "Reset to sample data?",
+    resetModalSubtitle: "Your custom entries will be replaced by default goals.",
+    resetModalText: "Do you really want to reset all current goals and wins to the preloaded sample data (German, French, English, Driving License, Fitness)?",
+    confirmResetBtn: "Yes, reset",
+    celebrationTitle: "Fantastic Achievement! 🎉",
+    celebrationDesc: "You completed all your goals for this day!",
+    daysNames: {
+      Mo: { label: 'Monday', short: 'Mon' },
+      Di: { label: 'Tuesday', short: 'Tue' },
+      Mi: { label: 'Wednesday', short: 'Wed' },
+      Do: { label: 'Thursday', short: 'Thu' },
+      Fr: { label: 'Friday', short: 'Fri' },
+      Sa: { label: 'Saturday', short: 'Sat' },
+      So: { label: 'Sunday', short: 'Sun' }
+    },
+    categories: {
+      'Deutsch (Allemand)': 'German 🇩🇪',
+      'Französisch (Français)': 'French 🇫🇷',
+      'Englisch (Anglais)': 'English 🇬🇧',
+      'Sprachen & Lernen': 'Languages & Study',
+      'Fitness & Gesundheit': 'Fitness & Health',
+      'Führerschein / Alltag': 'Driving / Daily Life',
+      'Sonstiges': 'Other'
+    },
+    priorities: {
+      'Hoch': 'High',
+      'Mittel': 'Medium',
+      'Niedrig': 'Low'
+    }
+  }
+};
+
+// --- GEMINI API HELPER MIT EXPONENTIAL BACKOFF ---
+const callGeminiAPI = async ({ prompt, systemInstruction, responseSchema = null }) => {
+  const apiKey = "";
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+  const payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+  };
+
+  if (systemInstruction) {
+    payload.systemInstruction = {
+      parts: [{ text: systemInstruction }]
+    };
+  }
+
+  if (responseSchema) {
+    payload.generationConfig = {
+      responseMimeType: "application/json",
+      responseSchema: responseSchema
+    };
+  }
+
+  const delays = [1000, 2000, 4000, 8000, 16000];
+  for (let attempt = 0; attempt <= delays.length; attempt++) {
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        throw new Error("Keine gültige Antwort von Gemini erhalten.");
+      }
+
+      return responseSchema ? JSON.parse(text) : text;
+    } catch (error) {
+      if (attempt === delays.length) {
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, delays[attempt]));
+    }
+  }
+};
+
+// --- KONSTANTEN & STANDARDDATEN ---
+const DAYS = [
+  { key: 'Mo', label: 'Montag', short: 'Mo' },
+  { key: 'Di', label: 'Dienstag', short: 'Di' },
+  { key: 'Mi', label: 'Mittwoch', short: 'Mi' },
+  { key: 'Do', label: 'Donnerstag', short: 'Do' },
+  { key: 'Fr', label: 'Freitag', short: 'Fr' },
+  { key: 'Sa', label: 'Samstag', short: 'Sa' },
+  { key: 'So', label: 'Sonntag', short: 'So' },
+];
+
+const CATEGORIES = {
+  'Deutsch (Allemand)': {
+    color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60',
+    badgeBg: 'bg-indigo-500',
+    icon: BookOpen
+  },
+  'Französisch (Français)': {
+    color: 'bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border-blue-200 dark:border-blue-800/60',
+    badgeBg: 'bg-blue-500',
+    icon: Globe
+  },
+  'Englisch (Anglais)': {
+    color: 'bg-sky-100 text-sky-800 dark:bg-sky-950/70 dark:text-sky-300 border-sky-200 dark:border-sky-800/60',
+    badgeBg: 'bg-sky-500',
+    icon: Globe
+  },
+  'Sprachen & Lernen': {
+    color: 'bg-violet-100 text-violet-800 dark:bg-violet-950/70 dark:text-violet-300 border-violet-200 dark:border-violet-800/60',
+    badgeBg: 'bg-violet-500',
+    icon: BookOpen
+  },
+  'Fitness & Gesundheit': {
+    color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
+    badgeBg: 'bg-emerald-500',
+    icon: Dumbbell
+  },
+  'Führerschein / Alltag': {
+    color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border-amber-200 dark:border-amber-800/60',
+    badgeBg: 'bg-amber-500',
+    icon: Car
+  },
+  'Sonstiges': {
+    color: 'bg-purple-100 text-purple-800 dark:bg-purple-950/70 dark:text-purple-300 border-purple-200 dark:border-purple-800/60',
+    badgeBg: 'bg-purple-500',
+    icon: Star
+  }
+};
+
+const PRIORITIES = {
+  'Hoch': { color: 'text-rose-600 bg-rose-50 dark:bg-rose-950/50 dark:text-rose-400 border-rose-200 dark:border-rose-900', dot: 'bg-rose-500' },
+  'Mittel': { color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/50 dark:text-amber-400 border-amber-200 dark:border-amber-900', dot: 'bg-amber-500' },
+  'Niedrig': { color: 'text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700', dot: 'bg-slate-400' }
+};
+
+// Hilfsfunktion um den aktuellen Wochentag (Mo-So) zu ermitteln
+const getCurrentDayKey = () => {
+  const dayIndex = new Date().getDay(); // 0 = So, 1 = Mo, ..., 6 = Sa
+  const map = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  return map[dayIndex];
+};
+
+const DEFAULT_GOALS = [
+  {
+    id: 'goal-1',
+    title: '🇩🇪 Deutsch C1: Wortschatz & Grammatik (Partizipialattribute / Konjunktiv)',
+    category: 'Deutsch (Allemand)',
+    priority: 'Hoch',
+    completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+  },
+  {
+    id: 'goal-2',
+    title: '🇫🇷 Français: Expression écrite & lecture d’articles (Le Monde / 250 mots)',
+    category: 'Französisch (Français)',
+    priority: 'Hoch',
+    completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+  },
+  {
+    id: 'goal-3',
+    title: '🇬🇧 English: 25 min Listening & Active Vocabulary (Podcast / BBC)',
+    category: 'Englisch (Anglais)',
+    priority: 'Mittel',
+    completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+  },
+  {
+    id: 'goal-4',
+    title: 'Theoriefragen für den Führerschein üben (2 Bögen fehlerfrei)',
+    category: 'Führerschein / Alltag',
+    priority: 'Mittel',
+    completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+  },
+  {
+    id: 'goal-5',
+    title: 'Workout / Sporteinheit absolvieren (45 Min. Kraft oder Cardio)',
+    category: 'Fitness & Gesundheit',
+    priority: 'Mittel',
+    completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+  }
+];
+
+const DEFAULT_WINS = [];
+
+const DEFAULT_MILESTONE = {
+  title: 'Sprachprüfung (DE / FR / EN) & Meilenstein',
+  targetDate: '2026-10-31'
+};
+
+export default function App() {
+  // --- STATE MANAGEMENT ---
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('fokus_lang_v1');
+    return saved && TRANSLATIONS[saved] ? saved : 'fr';
+  });
+
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.de;
+
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('fokus_dark_mode');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  const [selectedDay, setSelectedDay] = useState(getCurrentDayKey);
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState('Alle');
+
+  const [goals, setGoals] = useState(() => {
+    const saved = localStorage.getItem('fokus_goals_v3_zero');
+    return saved ? JSON.parse(saved) : DEFAULT_GOALS;
+  });
+
+  const [wins, setWins] = useState(() => {
+    const saved = localStorage.getItem('fokus_wins_v3_zero');
+    return saved ? JSON.parse(saved) : DEFAULT_WINS;
+  });
+
+  const [milestone, setMilestone] = useState(() => {
+    const saved = localStorage.getItem('fokus_milestone_v1');
+    return saved ? JSON.parse(saved) : DEFAULT_MILESTONE;
+  });
+
+  // Formular States für neues Ziel
+  const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [newGoalCategory, setNewGoalCategory] = useState('Französisch (Français)');
+  const [newGoalPriority, setNewGoalPriority] = useState('Hoch');
+  const [isAddingGoal, setIsAddingGoal] = useState(false);
+
+  // Bearbeitungs-State für Ziele (Édition des objectifs)
+  const [editingGoalId, setEditingGoalId] = useState(null);
+  const [editGoalTitle, setEditGoalTitle] = useState('');
+  const [editGoalCategory, setEditGoalCategory] = useState('Französisch (Français)');
+  const [editGoalPriority, setEditGoalPriority] = useState('Hoch');
+
+  // Formular & Bearbeitungs-State für Wochenerfolge (Wins)
+  const [newWinText, setNewWinText] = useState('');
+  const [newWinTag, setNewWinTag] = useState('Französisch (Français)');
+  const [editingWinId, setEditingWinId] = useState(null);
+  const [editWinText, setEditWinText] = useState('');
+  const [editWinTag, setEditWinTag] = useState('Französisch (Français)');
+
+  // Bearbeitungs-State für Meilenstein
+  const [isEditingMilestone, setIsEditingMilestone] = useState(false);
+  const [tempMilestoneTitle, setTempMilestoneTitle] = useState(milestone.title);
+  const [tempMilestoneDate, setTempMilestoneDate] = useState(milestone.targetDate);
+
+  // Modals (Reset & Tuto)
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showTutorialModal, setShowTutorialModal] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // --- KI (GEMINI API) STATES ---
+  // 1. KI-Wochen-Coach
+  const [aiCoachInsight, setAiCoachInsight] = useState(() => {
+    const saved = localStorage.getItem('fokus_ai_coach_v1');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [isLoadingCoach, setIsLoadingCoach] = useState(false);
+  const [coachError, setCoachError] = useState(null);
+
+  // 2. KI-Ziel-Generator (Smart Habit Builder)
+  const [showAiGoalGenerator, setShowAiGoalGenerator] = useState(false);
+  const [aiGoalPrompt, setAiGoalPrompt] = useState('');
+  const [aiSuggestedGoals, setAiSuggestedGoals] = useState([]);
+  const [isGeneratingGoals, setIsGeneratingGoals] = useState(false);
+  const [goalGenError, setGoalGenError] = useState(null);
+
+  // 3. KI-Mini-Schritte & Lerntipps pro Ziel
+  const [goalBreakdowns, setGoalBreakdowns] = useState({});
+  const [loadingBreakdownId, setLoadingBreakdownId] = useState(null);
+
+  // 4. KI-Reflexions-Impuls im Erfolgs-Logbuch
+  const [isGeneratingWinPrompt, setIsGeneratingWinPrompt] = useState(false);
+
+  // --- LOCAL STORAGE EFFEKTE ---
+  useEffect(() => {
+    localStorage.setItem('fokus_lang_v1', lang);
+  }, [lang]);
+
+  useEffect(() => {
+    localStorage.setItem('fokus_dark_mode', JSON.stringify(darkMode));
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('fokus_goals_v3_zero', JSON.stringify(goals));
+  }, [goals]);
+
+  useEffect(() => {
+    localStorage.setItem('fokus_wins_v3_zero', JSON.stringify(wins));
+  }, [wins]);
+
+  useEffect(() => {
+    localStorage.setItem('fokus_milestone_v1', JSON.stringify(milestone));
+  }, [milestone]);
+
+  useEffect(() => {
+    if (aiCoachInsight) {
+      localStorage.setItem('fokus_ai_coach_v1', JSON.stringify(aiCoachInsight));
+    }
+  }, [aiCoachInsight]);
+
+  // --- BERECHNUNGEN & STATISTIKEN ---
+  const dailyStats = useMemo(() => {
+    const total = goals.length;
+    if (total === 0) return { completed: 0, total: 0, percentage: 0 };
+    const completed = goals.filter(g => g.completedDays[selectedDay]).length;
+    const percentage = Math.round((completed / total) * 100);
+    return { completed, total, percentage };
+  }, [goals, selectedDay]);
+
+  const weeklyStats = useMemo(() => {
+    const totalPossible = goals.length * 7;
+    let totalCompleted = 0;
+    const perDay = DAYS.map(d => {
+      const count = goals.filter(g => g.completedDays[d.key]).length;
+      totalCompleted += count;
+      const pct = goals.length > 0 ? Math.round((count / goals.length) * 100) : 0;
+      return { ...d, count, total: goals.length, pct };
+    });
+
+    const weeklyPercentage = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+
+    // Streak berechnen (aufeinanderfolgende aktive Tage mit mindestens 1 erledigten Ziel)
+    let currentStreak = 0;
+    const todayKey = getCurrentDayKey();
+    const todayIdx = DAYS.findIndex(d => d.key === todayKey);
+    
+    // Zähle rückwärts ab heute (oder dem letzten aktiven Tag dieser Woche)
+    for (let i = todayIdx; i >= 0; i--) {
+      const dayKey = DAYS[i].key;
+      const doneThatDay = goals.some(g => g.completedDays[dayKey]);
+      if (doneThatDay) {
+        currentStreak++;
+      } else if (i !== todayIdx) {
+        break;
+      }
+    }
+
+    return { totalCompleted, totalPossible, weeklyPercentage, perDay, currentStreak };
+  }, [goals]);
+
+  const daysUntilMilestone = useMemo(() => {
+    if (!milestone.targetDate) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(milestone.targetDate);
+    target.setHours(0, 0, 0, 0);
+    const diffTime = target - today;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }, [milestone.targetDate]);
+
+  // Gefilterte Ziele für die Tagesansicht
+  const filteredGoals = useMemo(() => {
+    if (activeCategoryFilter === 'Alle') return goals;
+    return goals.filter(g => g.category === activeCategoryFilter);
+  }, [goals, activeCategoryFilter]);
+
+  // --- INTERAKTIONS-HANDLER ---
+  const toggleGoalForDay = (goalId, dayKey) => {
+    setGoals(prevGoals => {
+      const updated = prevGoals.map(goal => {
+        if (goal.id !== goalId) return goal;
+        const newStatus = !goal.completedDays[dayKey];
+        return {
+          ...goal,
+          completedDays: {
+            ...goal.completedDays,
+            [dayKey]: newStatus
+          }
+        };
+      });
+
+      // Prüfen, ob dadurch heute 100% erreicht wurden
+      if (dayKey === selectedDay && updated.length > 0) {
+        const allDoneNow = updated.every(g => g.completedDays[dayKey]);
+        const wasAllDoneBefore = prevGoals.every(g => g.completedDays[dayKey]);
+        if (allDoneNow && !wasAllDoneBefore) {
+          triggerCelebration();
+        }
+      }
+      return updated;
+    });
+  };
+
+  const triggerCelebration = () => {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 4500);
+  };
+
+  const handleAddGoal = (e) => {
+    e.preventDefault();
+    if (!newGoalTitle.trim()) return;
+
+    const newGoal = {
+      id: 'goal-' + Date.now(),
+      title: newGoalTitle.trim(),
+      category: newGoalCategory,
+      priority: newGoalPriority,
+      completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+    };
+
+    setGoals(prev => [...prev, newGoal]);
+    setNewGoalTitle('');
+    setIsAddingGoal(false);
+  };
+
+  const startEditingGoal = (goal) => {
+    setEditingGoalId(goal.id);
+    setEditGoalTitle(goal.title);
+    setEditGoalCategory(goal.category);
+    setEditGoalPriority(goal.priority);
+  };
+
+  const saveEditedGoal = (e) => {
+    e.preventDefault();
+    if (!editGoalTitle.trim()) return;
+
+    setGoals(prev => prev.map(g => 
+      g.id === editingGoalId 
+        ? { ...g, title: editGoalTitle.trim(), category: editGoalCategory, priority: editGoalPriority }
+        : g
+    ));
+    setEditingGoalId(null);
+  };
+
+  const deleteGoal = (id) => {
+    setGoals(prev => prev.filter(g => g.id !== id));
+  };
+
+  const handleAddWin = (e) => {
+    e.preventDefault();
+    if (!newWinText.trim()) return;
+
+    const dayLabel = t.daysNames[selectedDay]?.label || t.today;
+    const newWin = {
+      id: 'win-' + Date.now(),
+      text: newWinText.trim(),
+      date: dayLabel,
+      tag: newWinTag
+    };
+
+    setWins(prev => [newWin, ...prev]);
+    setNewWinText('');
+  };
+
+  const deleteWin = (id) => {
+    setWins(prev => prev.filter(w => w.id !== id));
+  };
+
+  const startEditingWin = (win) => {
+    setEditingWinId(win.id);
+    setEditWinText(win.text);
+    setEditWinTag(win.tag);
+  };
+
+  const saveEditedWin = (e) => {
+    e.preventDefault();
+    if (!editWinText.trim()) return;
+    setWins(prev => prev.map(w =>
+      w.id === editingWinId ? { ...w, text: editWinText.trim(), tag: editWinTag } : w
+    ));
+    setEditingWinId(null);
+  };
+
+  const handleZeroAllCounters = () => {
+    setGoals(prev => prev.map(g => ({
+      ...g,
+      completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+    })));
+    setWins([]);
+    setAiCoachInsight(null);
+    localStorage.removeItem('fokus_ai_coach_v1');
+  };
+
+  const saveMilestone = (e) => {
+    e.preventDefault();
+    if (!tempMilestoneTitle.trim()) return;
+    setMilestone({
+      title: tempMilestoneTitle.trim(),
+      targetDate: tempMilestoneDate
+    });
+    setIsEditingMilestone(false);
+  };
+
+  const handleResetData = () => {
+    setGoals(DEFAULT_GOALS);
+    setWins(DEFAULT_WINS);
+    setMilestone(DEFAULT_MILESTONE);
+    setAiCoachInsight(null);
+    localStorage.removeItem('fokus_ai_coach_v1');
+    setSelectedDay(getCurrentDayKey());
+    setActiveCategoryFilter('Alle');
+    setShowResetModal(false);
+  };
+
+  const markAllTodayCompleted = () => {
+    setGoals(prev => prev.map(g => ({
+      ...g,
+      completedDays: { ...g.completedDays, [selectedDay]: true }
+    })));
+    triggerCelebration();
+  };
+
+  // --- GEMINI KI-HANDLER ---
+  const getLanguageNameForAI = () => {
+    if (lang === 'fr') return 'Französisch (Français)';
+    if (lang === 'en') return 'Englisch (English)';
+    return 'Deutsch';
+  };
+
+  const handleGenerateCoachFeedback = async () => {
+    setIsLoadingCoach(true);
+    setCoachError(null);
+    try {
+      const goalsSummary = goals.map(g => {
+        const doneDaysCount = Object.values(g.completedDays).filter(Boolean).length;
+        return `- "${g.title}" (Kategorie: ${g.category}, Priorität: ${g.priority}): ${doneDaysCount}/7 Tagen erledigt`;
+      }).join('\n');
+
+      const winsSummary = wins.map(w => `- ${w.text} (${w.tag})`).join('\n');
+      const targetLang = getLanguageNameForAI();
+
+      const prompt = `Analysiere meinen aktuellen Wochenfortschritt:
+Aktueller Tag: ${t.daysNames[selectedDay]?.label}
+Wochen-Erfolgsquote: ${weeklyStats.weeklyPercentage}% (${weeklyStats.totalCompleted} von ${weeklyStats.totalPossible} Aufgaben erledigt)
+Aktueller Streak: ${weeklyStats.currentStreak} Tage
+Nächster großer Meilenstein: "${milestone.title}" (in ${daysUntilMilestone} Tagen)
+
+Meine täglichen Ziele im Detail:
+${goalsSummary || 'Keine Ziele eingetragen'}
+
+Meine bisherigen Wochenerfolge (Wins):
+${winsSummary || 'Noch keine Erfolge eingetragen'}
+
+WICHTIG: Antworte komplett in der Sprache: ${targetLang}.`;
+
+      const schema = {
+        type: "OBJECT",
+        properties: {
+          headline: { type: "STRING" },
+          praise: { type: "STRING" },
+          focusTip: { type: "STRING" },
+          nextStepToday: { type: "STRING" }
+        },
+        propertyOrdering: ["headline", "praise", "focusTip", "nextStepToday"]
+      };
+
+      const data = await callGeminiAPI({
+        prompt,
+        systemInstruction: `Du bist ein empathischer, kluger Produktivitäts- und Sprachcoach (Französisch, Deutsch, Englisch). Antworte dem Nutzer immer in der Sprache ${targetLang}.`,
+        responseSchema: schema
+      });
+
+      setAiCoachInsight(data);
+    } catch (err) {
+      setCoachError("AI Coach error. Please try again.");
+    } finally {
+      setIsLoadingCoach(false);
+    }
+  };
+
+  const handleGenerateGoalSuggestions = async (e) => {
+    e.preventDefault();
+    if (!aiGoalPrompt.trim()) return;
+    setIsGeneratingGoals(true);
+    setGoalGenError(null);
+
+    try {
+      const existingTitles = goals.map(g => g.title).join(', ');
+      const targetLang = getLanguageNameForAI();
+      const prompt = `Der Nutzer möchte folgendes Oberziel oder Thema im Alltag erreichen: "${aiGoalPrompt.trim()}".
+Bisherige Ziele des Nutzers: ${existingTitles}.
+Schlage 3 konkrete, täglich messbare und sofort umsetzbare Gewohnheiten (Daily Goals) in der Sprache ${targetLang} vor.
+Verwende für 'category' ausschließlich eine dieser 7 Optionen: 'Deutsch (Allemand)', 'Französisch (Français)', 'Englisch (Anglais)', 'Sprachen & Lernen', 'Fitness & Gesundheit', 'Führerschein / Alltag', 'Sonstiges'.
+Verwende für 'priority' ausschließlich: 'Hoch', 'Mittel' oder 'Niedrig'.`;
+
+      const schema = {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            title: { type: "STRING" },
+            category: { type: "STRING" },
+            priority: { type: "STRING" },
+            reason: { type: "STRING" }
+          },
+          propertyOrdering: ["title", "category", "priority", "reason"]
+        }
+      };
+
+      const suggestions = await callGeminiAPI({
+        prompt,
+        systemInstruction: `Du bist Experte für Gewohnheitsbildung und Sprachenlernen (FR/DE/EN). Formuliere die Titel und Begründungen in ${targetLang}.`,
+        responseSchema: schema
+      });
+
+      if (Array.isArray(suggestions)) {
+        setAiSuggestedGoals(suggestions);
+      }
+    } catch (err) {
+      setGoalGenError("Error generating suggestions.");
+    } finally {
+      setIsGeneratingGoals(false);
+    }
+  };
+
+  const addSuggestedGoal = (suggestion) => {
+    const validCategory = CATEGORIES[suggestion.category] ? suggestion.category : 'Sonstiges';
+    const validPriority = PRIORITIES[suggestion.priority] ? suggestion.priority : 'Mittel';
+
+    const newGoal = {
+      id: 'goal-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      title: suggestion.title,
+      category: validCategory,
+      priority: validPriority,
+      completedDays: { Mo: false, Di: false, Mi: false, Do: false, Fr: false, Sa: false, So: false }
+    };
+
+    setGoals(prev => [...prev, newGoal]);
+    setAiSuggestedGoals(prev => prev.filter(s => s.title !== suggestion.title));
+  };
+
+  const handleBreakdownGoal = async (goal) => {
+    // Wenn bereits geöffnet, wieder einklappen
+    if (goalBreakdowns[goal.id]) {
+      setGoalBreakdowns(prev => {
+        const copy = { ...prev };
+        delete copy[goal.id];
+        return copy;
+      });
+      return;
+    }
+
+    setLoadingBreakdownId(goal.id);
+    try {
+      const targetLang = getLanguageNameForAI();
+      const prompt = `Erstelle für folgendes Tagesziel einen sofort umsetzbaren 3-Schritte-Mini-Aktionsplan für heute sowie einen kurzen Experten-Tipp in der Sprache ${targetLang}:
+Ziel: "${goal.title}" (Kategorie: ${goal.category}, Priorität: ${goal.priority}).`;
+
+      const schema = {
+        type: "OBJECT",
+        properties: {
+          steps: {
+            type: "ARRAY",
+            items: { type: "STRING" }
+          },
+          proTip: { type: "STRING" },
+          estimatedMinutes: { type: "STRING" }
+        },
+        propertyOrdering: ["steps", "proTip", "estimatedMinutes"]
+      };
+
+      const result = await callGeminiAPI({
+        prompt,
+        systemInstruction: `Du bist ein praktischer Lerncoach. Zerlege Aufgaben in 3 kleine, konkrete Schritte in der Sprache ${targetLang}.`,
+        responseSchema: schema
+      });
+
+      setGoalBreakdowns(prev => ({
+        ...prev,
+        [goal.id]: result
+      }));
+    } catch (err) {
+      setGoalBreakdowns(prev => ({
+        ...prev,
+        [goal.id]: {
+          steps: ["15-Minuten-Fokusblock starten", "Kernthema konzentriert durcharbeiten", "Kurze Wiederholung notieren"],
+          proTip: "Starte mit dem kleinstmöglichen Schritt.",
+          estimatedMinutes: "25 Min."
+        }
+      }));
+    } finally {
+      setLoadingBreakdownId(null);
+    }
+  };
+
+  const handleInspireWinReflection = async () => {
+    setIsGeneratingWinPrompt(true);
+    try {
+      const targetLang = getLanguageNameForAI();
+      const completedToday = goals.filter(g => g.completedDays[selectedDay]).map(g => g.title);
+      const prompt = `Ich möchte einen Wochenerfolg (Win) in mein Erfolgs-Logbuch eintragen.
+Meine erledigten Ziele heute (${t.daysNames[selectedDay]?.label}): ${completedToday.join(', ') || 'allgemeine Disziplin im Alltag'}.
+Formuliere einen konkreten, authentischen und stolzen Erfolgs-Satz in der Ich-Form (max. 20 Wörter) in der Sprache ${targetLang}, den ich direkt speichern kann.`;
+
+      const text = await callGeminiAPI({
+        prompt,
+        systemInstruction: `Formuliere nur den reinen Satz in ${targetLang} ohne Anführungszeichen.`
+      });
+
+      setNewWinText(text.replace(/^["„«]|["“»]$/g, '').trim());
+    } catch (err) {
+      // Fallback falls API nicht antwortet
+    } finally {
+      setIsGeneratingWinPrompt(false);
+    }
+  };
+
+  return (
+    <div className={darkMode ? 'dark' : ''}>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans pb-16">
+        
+        {/* --- KONFETTI / MOTIVATIONS-EFFEKT --- */}
+        {showConfetti && (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-start justify-center overflow-hidden">
+            <div className="mt-8 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-bounce border border-white/20">
+              <div className="bg-white/20 p-2 rounded-xl">
+                <Trophy className="w-7 h-7 text-yellow-300" />
+              </div>
+              <div>
+                <h4 className="font-bold text-lg">{t.celebrationTitle}</h4>
+                <p className="text-sm text-emerald-50">{t.celebrationDesc}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- TOP NAVIGATION / HEADER --- */}
+        <header className="sticky top-0 z-30 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                <Target className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 dark:from-indigo-400 dark:via-indigo-300 dark:to-emerald-400 bg-clip-text text-transparent">
+                    {t.appTitle}
+                  </h1>
+                  <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                    {t.badgeTracker}
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                  {t.appSubtitle}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* RUBRIQUE LANGUE: FRANÇAIS, ALLEMAND, ANGLAIS */}
+              <div className="flex items-center bg-indigo-50/90 dark:bg-slate-800 p-1 rounded-xl border border-indigo-200/80 dark:border-slate-700">
+                <Globe className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 ml-2 mr-1 hidden sm:block" />
+                {[
+                  { code: 'fr', label: 'Français', short: 'FR 🇫🇷' },
+                  { code: 'de', label: 'Allemand', short: 'DE 🇩🇪' },
+                  { code: 'en', label: 'Anglais', short: 'EN 🇬🇧' }
+                ].map(item => (
+                  <button
+                    key={item.code}
+                    onClick={() => setLang(item.code)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      lang === item.code
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white'
+                    }`}
+                    title={item.label}
+                  >
+                    <span className="sm:hidden">{item.short}</span>
+                    <span className="hidden sm:inline">{item.short} {item.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Wochentag Schnellauswahl im Header für Desktop */}
+              <div className="hidden xl:flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/70">
+                {DAYS.map(day => {
+                  const isSelected = selectedDay === day.key;
+                  const isToday = getCurrentDayKey() === day.key;
+                  return (
+                    <button
+                      key={day.key}
+                      onClick={() => setSelectedDay(day.key)}
+                      className={`relative px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      {t.daysNames[day.key]?.short}
+                      {isToday && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" title={t.today} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setShowTutorialModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200/80 dark:border-indigo-800 transition-colors cursor-pointer"
+                title="Guide d'utilisation en français"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span>{t.tutorialBtn}</span>
+              </button>
+
+              <button
+                onClick={handleZeroAllCounters}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200/80 dark:border-rose-800/70 transition-colors cursor-pointer"
+                title={t.zeroCountersTitle}
+              >
+                <Eraser className="w-4 h-4" />
+                <span className="hidden sm:inline">{t.zeroCountersBtn}</span>
+              </button>
+
+              <button
+                onClick={() => setShowResetModal(true)}
+                className="p-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-colors cursor-pointer"
+                title={t.resetTitle}
+              >
+                <RotateCcw className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 transition-colors cursor-pointer"
+                aria-label="Dark Mode"
+                title={darkMode ? t.lightMode : t.darkMode}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* --- HAUPTBEREICH --- */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-8">
+
+          {/* --- 1. KPI & STATISTIK KARTEN --- */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Karte 1: Aktueller Streak */}
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  {t.activeStreak}
+                </span>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
+                    {weeklyStats.currentStreak} {weeklyStats.currentStreak === 1 ? t.day : t.days}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" /> {t.keepGoing}
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/60 border border-orange-200/60 dark:border-orange-800/50 flex items-center justify-center text-orange-500">
+                <Flame className="w-6 h-6 fill-orange-500/20" />
+              </div>
+            </div>
+
+            {/* Karte 2: Erledigte Ziele diese Woche */}
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  {t.weeklyBalance}
+                </span>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
+                    {weeklyStats.totalCompleted}
+                  </span>
+                  <span className="text-sm text-slate-400 dark:text-slate-500 font-medium">
+                    / {weeklyStats.totalPossible} {t.ofGoals}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                  {t.todayDone}: {dailyStats.completed} / {dailyStats.total}
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+            </div>
+
+            {/* Karte 3: Erfolgsquote */}
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+              <div className="w-full pr-4">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  {t.weeklySuccessRate}
+                </span>
+                <div className="mt-1 flex items-baseline justify-between">
+                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
+                    {weeklyStats.weeklyPercentage}%
+                  </span>
+                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    {weeklyStats.weeklyPercentage >= 75 ? t.excellent : weeklyStats.weeklyPercentage >= 40 ? t.goodTrack : t.expandable}
+                  </span>
+                </div>
+                <div className="mt-2.5 w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full rounded-full transition-all duration-500"
+                    style={{ width: `${weeklyStats.weeklyPercentage}%` }}
+                  />
+                </div>
+              </div>
+              <div className="w-12 h-12 shrink-0 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+            </div>
+
+            {/* Karte 4: Editierbares Countdown / Meilenstein Widget */}
+            <div className="bg-gradient-to-br from-indigo-600 to-slate-900 text-white p-5 rounded-2xl shadow-md relative overflow-hidden flex flex-col justify-between">
+              {!isEditingMilestone ? (
+                <>
+                  <div className="flex items-start justify-between gap-2 z-10">
+                    <div>
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-200 flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {t.countdownGoal}
+                      </span>
+                      <h3 className="font-bold text-sm sm:text-base mt-0.5 line-clamp-1" title={milestone.title}>
+                        {milestone.title}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setTempMilestoneTitle(milestone.title);
+                        setTempMilestoneDate(milestone.targetDate);
+                        setIsEditingMilestone(true);
+                      }}
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 transition-colors cursor-pointer"
+                      title={t.editMilestone}
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="mt-2 flex items-baseline justify-between z-10">
+                    <div>
+                      <span className="text-3xl font-extrabold text-amber-300">
+                        {daysUntilMilestone >= 0 ? `${t.daysLeft} ${daysUntilMilestone}` : Math.abs(daysUntilMilestone)}
+                      </span>
+                      <span className="ml-1.5 text-xs font-medium text-indigo-100">
+                        {daysUntilMilestone === 1 ? t.day : daysUntilMilestone >= 0 ? t.days : t.daysPassed}
+                      </span>
+                    </div>
+                    <span className="text-xs text-indigo-200 bg-white/10 px-2 py-0.5 rounded-md">
+                      {new Date(milestone.targetDate).toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'en' ? 'en-US' : 'de-DE', { day: '2-digit', month: 'short' })}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <form onSubmit={saveMilestone} className="z-10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-indigo-200">{t.editMilestone}</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingMilestone(false)}
+                      className="text-indigo-200 hover:text-white"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={tempMilestoneTitle}
+                    onChange={(e) => setTempMilestoneTitle(e.target.value)}
+                    placeholder={t.milestonePlaceholder}
+                    className="w-full px-2.5 py-1 text-xs rounded-lg bg-white/15 text-white placeholder-indigo-200 border border-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    required
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="date"
+                      value={tempMilestoneDate}
+                      onChange={(e) => setTempMilestoneDate(e.target.value)}
+                      className="flex-1 px-2.5 py-1 text-xs rounded-lg bg-white/15 text-white border border-white/20 focus:outline-none"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-xs font-bold rounded-lg text-slate-950 transition-colors"
+                    >
+                      OK
+                    </button>
+                  </div>
+                </form>
+              )}
+              <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+            </div>
+          </section>
+
+          {/* --- MOBILE & TABLET WOCHENTAG-AUSWAHL --- */}
+          <div className="flex xl:hidden items-center justify-between bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
+            {DAYS.map(day => {
+              const isSelected = selectedDay === day.key;
+              const isToday = getCurrentDayKey() === day.key;
+              return (
+                <button
+                  key={day.key}
+                  onClick={() => setSelectedDay(day.key)}
+                  className={`relative flex-1 min-w-[44px] py-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center cursor-pointer ${
+                    isSelected
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`}
+                >
+                  <span>{t.daysNames[day.key]?.short}</span>
+                  {isToday && (
+                    <span className={`mt-1 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-emerald-500'}`} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* --- KI-WOCHEN-COACH & FOKUS-ANALYSE (GEMINI API) --- */}
+          <section className="bg-gradient-to-r from-indigo-950 via-slate-900 to-emerald-950 text-white rounded-3xl p-6 sm:p-7 shadow-lg border border-indigo-500/20 relative overflow-hidden">
+            <div className="absolute -right-12 -top-12 w-56 h-56 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none" />
+            <div className="absolute right-24 -bottom-16 w-48 h-48 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">
+                  <Brain className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{t.aiCoachBadge}</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                  {aiCoachInsight ? aiCoachInsight.headline : t.aiCoachDefaultTitle}
+                </h2>
+                <p className="text-xs sm:text-sm text-indigo-100/80 leading-relaxed">
+                  {aiCoachInsight
+                    ? aiCoachInsight.praise
+                    : t.aiCoachDefaultDesc}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={handleGenerateCoachFeedback}
+                  disabled={isLoadingCoach}
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-500 to-emerald-500 hover:from-indigo-400 hover:to-emerald-400 text-white shadow-lg shadow-indigo-500/25 transition-all cursor-pointer disabled:opacity-60"
+                >
+                  {isLoadingCoach ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{t.analyzingWeek}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4" />
+                      <span>{aiCoachInsight ? t.updateCoaching : t.startAiAnalysis}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {coachError && (
+              <div className="mt-4 p-3 rounded-xl bg-rose-500/20 border border-rose-400/30 text-xs text-rose-200">
+                {coachError}
+              </div>
+            )}
+
+            {aiCoachInsight && (
+              <div className="relative z-10 mt-6 pt-5 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white/5 backdrop-blur-xs p-4 rounded-2xl border border-white/10 flex items-start gap-3.5">
+                  <div className="p-2 rounded-xl bg-amber-400/20 text-amber-300 shrink-0 mt-0.5">
+                    <Lightbulb className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-300">
+                      {t.strategicFocusTip}
+                    </span>
+                    <p className="text-xs sm:text-sm text-white/90 mt-1 leading-relaxed">
+                      {aiCoachInsight.focusTip}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-xs p-4 rounded-2xl border border-white/10 flex items-start gap-3.5">
+                  <div className="p-2 rounded-xl bg-emerald-400/20 text-emerald-300 shrink-0 mt-0.5">
+                    <ListChecks className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+                      {t.keyLeverToday}
+                    </span>
+                    <p className="text-xs sm:text-sm text-white/90 mt-1 leading-relaxed">
+                      {aiCoachInsight.nextStepToday}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* --- 2. HAUPT-GRID: TÄGLICHE ZIELE (LINKS) & WOCHEN-TRACKER (RECHTS) --- */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* --- LINKE SPALTE: TÄGLICHE ZIELE (7 SPALTEN) --- */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+                
+                {/* Kopfbereich Tägliche Ziele */}
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800/80">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                          {t.dailyGoalsTitle}
+                        </h2>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/90 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
+                          {t.daysNames[selectedDay]?.label}
+                          {selectedDay === getCurrentDayKey() && ` (${t.today})`}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        {t.dailyGoalsDesc}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setShowAiGoalGenerator(!showAiGoalGenerator);
+                          setIsAddingGoal(false);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition-all cursor-pointer"
+                      >
+                        <Wand2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>{t.aiIdeasBtn}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsAddingGoal(!isAddingGoal);
+                          setShowAiGoalGenerator(false);
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-500/20 transition-all cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>{t.newGoalBtn}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Fortschrittsbalken für den gewählten Tag */}
+                  <div className="mt-6 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-emerald-500" />
+                        {t.dailyProgress} ({t.daysNames[selectedDay]?.label})
+                      </span>
+                      <span className="text-sm font-extrabold text-indigo-600 dark:text-indigo-400">
+                        {dailyStats.completed} / {dailyStats.total} ({dailyStats.percentage}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-indigo-500 via-teal-500 to-emerald-500 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${dailyStats.percentage}%` }}
+                      />
+                    </div>
+                    {dailyStats.percentage === 100 && dailyStats.total > 0 && (
+                      <div className="mt-3 flex items-center justify-between text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800/60">
+                        <span>{t.allDoneBanner}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Kategorie-Filter Pillen (inkl. Französisch, Deutsch, Englisch) */}
+                  <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1">
+                    <Filter className="w-4 h-4 text-slate-400 shrink-0 mr-1" />
+                    {['Alle', ...Object.keys(CATEGORIES)].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setActiveCategoryFilter(cat)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                          activeCategoryFilter === cat
+                            ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {cat === 'Alle' ? t.allFilter : (t.categories[cat] || cat)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* KI-Ziel-Generator (Smart Habit Builder) */}
+                {showAiGoalGenerator && (
+                  <div className="p-6 bg-gradient-to-br from-emerald-50/70 via-indigo-50/40 to-white dark:from-emerald-950/30 dark:via-indigo-950/20 dark:to-slate-900 border-b border-emerald-200/70 dark:border-emerald-900/50 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                          <Wand2 className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                            {t.aiGeneratorTitle}
+                          </h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {t.aiGeneratorDesc}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowAiGoalGenerator(false)}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleGenerateGoalSuggestions} className="flex flex-col sm:flex-row gap-2.5">
+                      <input
+                        type="text"
+                        value={aiGoalPrompt}
+                        onChange={(e) => setAiGoalPrompt(e.target.value)}
+                        placeholder={t.aiPromptPlaceholder}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        disabled={isGeneratingGoals}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm cursor-pointer disabled:opacity-60 shrink-0"
+                      >
+                        {isGeneratingGoals ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>{t.generating}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            <span>{t.createSuggestions}</span>
+                          </>
+                        )}
+                      </button>
+                    </form>
+
+                    {goalGenError && (
+                      <p className="text-xs text-rose-600 dark:text-rose-400">{goalGenError}</p>
+                    )}
+
+                    {aiSuggestedGoals.length > 0 && (
+                      <div className="space-y-2.5 pt-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          {t.aiRecommendations}
+                        </span>
+                        {aiSuggestedGoals.map((suggestion, idx) => (
+                          <div
+                            key={idx}
+                            className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shadow-2xs"
+                          >
+                            <div className="space-y-1">
+                              <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">
+                                {suggestion.title}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                                  {t.categories[suggestion.category] || suggestion.category}
+                                </span>
+                                <span>•</span>
+                                <span>{t.priorityLabel}: {t.priorities[suggestion.priority] || suggestion.priority}</span>
+                                {suggestion.reason && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="italic">{suggestion.reason}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => addSuggestedGoal(suggestion)}
+                              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white transition-colors shrink-0 cursor-pointer flex items-center gap-1"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              {t.adoptBtn}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Formular zum Hinzufügen eines neuen Ziels */}
+                {isAddingGoal && (
+                  <form onSubmit={handleAddGoal} className="p-6 bg-indigo-50/50 dark:bg-indigo-950/20 border-b border-indigo-100 dark:border-indigo-900/50 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-indigo-950 dark:text-indigo-200">
+                        {t.createNewGoalTitle}
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingGoal(false)}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        {t.goalTitleLabel}
+                      </label>
+                      <input
+                        type="text"
+                        value={newGoalTitle}
+                        onChange={(e) => setNewGoalTitle(e.target.value)}
+                        placeholder={t.goalTitlePlaceholder}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        autoFocus
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                          {t.categoryLabel}
+                        </label>
+                        <select
+                          value={newGoalCategory}
+                          onChange={(e) => setNewGoalCategory(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                          {Object.keys(CATEGORIES).map(cat => (
+                            <option key={cat} value={cat}>{t.categories[cat] || cat}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                          {t.priorityLabel}
+                        </label>
+                        <select
+                          value={newGoalPriority}
+                          onChange={(e) => setNewGoalPriority(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                          {Object.keys(PRIORITIES).map(prio => (
+                            <option key={prio} value={prio}>{t.priorities[prio] || prio}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingGoal(false)}
+                        className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                      >
+                        {t.cancelBtn}
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
+                      >
+                        {t.saveGoalBtn}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Liste der Ziele */}
+                <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                  {filteredGoals.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 mx-auto flex items-center justify-center text-slate-400 mb-3">
+                        <Target className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        {t.noGoalsTitle}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        {t.noGoalsDesc}
+                      </p>
+                    </div>
+                  ) : (
+                    filteredGoals.map(goal => {
+                      const isDoneToday = !!goal.completedDays[selectedDay];
+                      const catConfig = CATEGORIES[goal.category] || CATEGORIES['Sonstiges'];
+                      const prioConfig = PRIORITIES[goal.priority] || PRIORITIES['Mittel'];
+                      const CatIcon = catConfig.icon;
+                      const isEditing = editingGoalId === goal.id;
+
+                      if (isEditing) {
+                        return (
+                          <form key={goal.id} onSubmit={saveEditedGoal} className="p-5 bg-slate-50 dark:bg-slate-800/50 space-y-3">
+                            <input
+                              type="text"
+                              value={editGoalTitle}
+                              onChange={(e) => setEditGoalTitle(e.target.value)}
+                              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              required
+                            />
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <select
+                                  value={editGoalCategory}
+                                  onChange={(e) => setEditGoalCategory(e.target.value)}
+                                  className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs"
+                                >
+                                  {Object.keys(CATEGORIES).map(c => (
+                                    <option key={c} value={c}>{t.categories[c] || c}</option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={editGoalPriority}
+                                  onChange={(e) => setEditGoalPriority(e.target.value)}
+                                  className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs"
+                                >
+                                  {Object.keys(PRIORITIES).map(p => (
+                                    <option key={p} value={p}>{t.priorities[p] || p}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingGoalId(null)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                >
+                                  {t.cancelBtn}
+                                </button>
+                                <button
+                                  type="submit"
+                                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white"
+                                >
+                                  {t.saveBtn}
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={goal.id}
+                          className={`group p-4 sm:p-5 flex flex-col gap-3 transition-all ${
+                            isDoneToday
+                              ? 'bg-emerald-50/30 dark:bg-emerald-950/10'
+                              : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+                          }`}
+                        >
+                          <div className="flex items-start gap-4">
+                            {/* Animierte Checkbox */}
+                            <button
+                              onClick={() => toggleGoalForDay(goal.id, selectedDay)}
+                              className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200 shrink-0 cursor-pointer ${
+                                isDoneToday
+                                  ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105'
+                                  : 'border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-500 dark:hover:border-indigo-400 bg-white dark:bg-slate-900'
+                              }`}
+                              aria-label="Check goal"
+                            >
+                              {isDoneToday && <Check className="w-4 h-4 stroke-[3]" />}
+                            </button>
+
+                            {/* Inhalt & Metadaten */}
+                            <div className="flex-1 min-w-0">
+                              <p
+                                onClick={() => toggleGoalForDay(goal.id, selectedDay)}
+                                className={`text-sm sm:text-base font-semibold cursor-pointer select-none transition-all ${
+                                  isDoneToday
+                                    ? 'line-through text-slate-400 dark:text-slate-500'
+                                    : 'text-slate-800 dark:text-slate-100'
+                                }`}
+                              >
+                                {goal.title}
+                              </p>
+
+                              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium border ${catConfig.color}`}>
+                                  <CatIcon className="w-3 h-3" />
+                                  {t.categories[goal.category] || goal.category}
+                                </span>
+
+                                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border ${prioConfig.color}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${prioConfig.dot}`} />
+                                  {t.priorityLabel}: {t.priorities[goal.priority] || goal.priority}
+                                </span>
+
+                                {/* KI Mini-Schritte Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleBreakdownGoal(goal)}
+                                  disabled={loadingBreakdownId === goal.id}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border transition-colors cursor-pointer ${
+                                    goalBreakdowns[goal.id]
+                                      ? 'bg-indigo-600 text-white border-indigo-600'
+                                      : 'bg-indigo-50/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 border-indigo-200/80 dark:border-indigo-800/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60'
+                                  }`}
+                                >
+                                  {loadingBreakdownId === goal.id ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Sparkles className="w-3 h-3" />
+                                  )}
+                                  <span>{goalBreakdowns[goal.id] ? t.aiPlanHide : t.aiStepsBtn}</span>
+                                </button>
+
+                                {/* Mini-Wochenpunkte auf der Karte */}
+                                <div className="hidden sm:flex items-center gap-1 ml-auto mr-2">
+                                  {DAYS.map(d => (
+                                    <span
+                                      key={d.key}
+                                      className={`w-2 h-2 rounded-full ${
+                                        goal.completedDays[d.key]
+                                          ? 'bg-emerald-500'
+                                          : d.key === selectedDay
+                                          ? 'bg-indigo-300 dark:bg-indigo-700'
+                                          : 'bg-slate-200 dark:bg-slate-700'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Aktions-Buttons (Bearbeiten / Löschen) - Immer sichtbar */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => startEditingGoal(goal)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/90 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200/60 dark:border-indigo-800/60 transition-colors cursor-pointer"
+                                title={t.editBtnLabel}
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                                <span className="hidden md:inline">{t.editBtnLabel}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteGoal(goal.id)}
+                                className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-200 dark:hover:border-rose-800/60 transition-colors cursor-pointer"
+                                title={t.deleteBtnLabel}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Eingeblendeter KI-Aktionsplan für dieses Ziel */}
+                          {goalBreakdowns[goal.id] && (
+                            <div className="ml-10 p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/60 space-y-2.5 text-xs">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                                  <Brain className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                                  {t.focusPlanTitle}
+                                </span>
+                                {goalBreakdowns[goal.id].estimatedMinutes && (
+                                  <span className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700">
+                                    ⏱ {goalBreakdowns[goal.id].estimatedMinutes}
+                                  </span>
+                                )}
+                              </div>
+                              <ol className="list-decimal list-inside space-y-1 text-slate-700 dark:text-slate-300 font-medium">
+                                {goalBreakdowns[goal.id].steps?.map((step, idx) => (
+                                  <li key={idx}>{step}</li>
+                                ))}
+                              </ol>
+                              {goalBreakdowns[goal.id].proTip && (
+                                <p className="pt-1.5 border-t border-indigo-200/50 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-300 italic flex items-center gap-1.5">
+                                  <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+                                  <span>{goalBreakdowns[goal.id].proTip}</span>
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Footer-Leiste der Ziele-Box */}
+                {goals.length > 0 && dailyStats.percentage < 100 && (
+                  <div className="px-6 py-3.5 bg-slate-50/80 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {t.tipRetroactive}
+                    </span>
+                    <button
+                      onClick={markAllTodayCompleted}
+                      className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer shrink-0 ml-2"
+                    >
+                      {t.checkAllFor} {t.daysNames[selectedDay]?.short}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* --- RECHTE SPALTE: WOCHEN-ÜBERSICHT & BALKEN (5 SPALTEN) --- */}
+            <div className="lg:col-span-5 space-y-6">
+              
+              {/* Visuelles Wochen-Balkendiagramm */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-indigo-500" />
+                      {t.weeklyCurveTitle}
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {t.weeklyCurveDesc}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
+                    Ø {weeklyStats.weeklyPercentage}% {t.weekAvg}
+                  </span>
+                </div>
+
+                {/* Balkendiagramm */}
+                <div className="grid grid-cols-7 gap-2 sm:gap-3 pt-4 pb-2 items-end h-44">
+                  {weeklyStats.perDay.map(dayStat => {
+                    const isSelected = dayStat.key === selectedDay;
+                    const isToday = dayStat.key === getCurrentDayKey();
+                    return (
+                      <div
+                        key={dayStat.key}
+                        onClick={() => setSelectedDay(dayStat.key)}
+                        className="flex flex-col items-center h-full justify-end group cursor-pointer"
+                      >
+                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                          {dayStat.count}/{dayStat.total}
+                        </span>
+                        <div className="w-full max-w-[38px] bg-slate-100 dark:bg-slate-800 rounded-xl h-28 flex items-end p-1 overflow-hidden border border-slate-200/50 dark:border-slate-700/50">
+                          <div
+                            className={`w-full rounded-lg transition-all duration-500 ${
+                              dayStat.pct === 100
+                                ? 'bg-gradient-to-t from-emerald-600 to-emerald-400'
+                                : dayStat.pct > 0
+                                ? 'bg-gradient-to-t from-indigo-600 to-indigo-400'
+                                : 'bg-transparent'
+                            }`}
+                            style={{ height: `${Math.max(dayStat.pct, dayStat.pct > 0 ? 12 : 0)}%` }}
+                          />
+                        </div>
+                        <div className="mt-2 flex flex-col items-center">
+                          <span
+                            className={`text-xs font-bold px-2 py-0.5 rounded-md transition-colors ${
+                              isSelected
+                                ? 'bg-indigo-600 text-white'
+                                : isToday
+                                ? 'text-emerald-600 dark:text-emerald-400 font-extrabold'
+                                : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white'
+                            }`}
+                          >
+                            {t.daysNames[dayStat.key]?.short}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Interaktive Habit-Matrix (Wochen-Gitter zum schnellen Abhaken) */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+                <div className="mb-4">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    {t.habitGridTitle}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {t.habitGridDesc}
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 dark:border-slate-800">
+                        <th className="py-2 pr-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+                          {t.goalCol}
+                        </th>
+                        {DAYS.map(d => (
+                          <th
+                            key={d.key}
+                            className={`py-2 px-1 text-center text-xs font-bold ${
+                              d.key === selectedDay
+                                ? 'text-indigo-600 dark:text-indigo-400'
+                                : 'text-slate-500 dark:text-slate-400'
+                            }`}
+                          >
+                            {t.daysNames[d.key]?.short}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs">
+                      {goals.map(goal => (
+                        <tr key={goal.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
+                          <td className="py-3 pr-3 font-medium text-slate-700 dark:text-slate-200 max-w-[150px] truncate" title={goal.title}>
+                            {goal.title}
+                          </td>
+                          {DAYS.map(d => {
+                            const done = !!goal.completedDays[d.key];
+                            return (
+                              <td key={d.key} className="py-2.5 px-1 text-center">
+                                <button
+                                  onClick={() => toggleGoalForDay(goal.id, d.key)}
+                                  className={`w-6 h-6 rounded-lg mx-auto flex items-center justify-center transition-all cursor-pointer ${
+                                    done
+                                      ? 'bg-emerald-500 text-white shadow-xs'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-transparent hover:border hover:border-indigo-400'
+                                  }`}
+                                  title={`${goal.title} - ${t.daysNames[d.key]?.label}`}
+                                >
+                                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                </button>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* --- 3. WOCHENREFLEXION / MEINE ERFOLGE DIESER WOCHE --- */}
+          <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm p-6 sm:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              
+              {/* Linke Seite: Erklärung & Eingabeformular */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
+                  <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                  {t.winsBadge}
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                  {t.winsTitle}
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  {t.winsDesc}
+                </p>
+
+                <form onSubmit={handleAddWin} className="pt-2 space-y-3">
+                  <div className="relative">
+                    <textarea
+                      rows={3}
+                      value={newWinText}
+                      onChange={(e) => setNewWinText(e.target.value)}
+                      placeholder={t.winsPlaceholder}
+                      className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={handleInspireWinReflection}
+                      disabled={isGeneratingWinPrompt}
+                      className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer disabled:opacity-50"
+                    >
+                      {isGeneratingWinPrompt ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-3.5 h-3.5" />
+                      )}
+                      <span>{t.aiWinHelper}</span>
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <select
+                      value={newWinTag}
+                      onChange={(e) => setNewWinTag(e.target.value)}
+                      className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold"
+                    >
+                      {Object.keys(CATEGORIES).map(cat => (
+                        <option key={cat} value={cat}>{t.categories[cat] || cat}</option>
+                      ))}
+                    </select>
+
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white shadow-sm cursor-pointer transition-all"
+                    >
+                      <Award className="w-4 h-4" />
+                      {t.addWinBtn}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Rechte Seite: Liste der eingetragenen Erfolge */}
+              <div className="lg:col-span-7">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {wins.length === 0 ? (
+                    <div className="sm:col-span-2 p-10 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center">
+                      <Trophy className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                      <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                        {t.noWinsTitle}
+                      </p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                        {t.noWinsDesc}
+                      </p>
+                    </div>
+                  ) : (
+                    wins.map(win => {
+                      const catStyle = CATEGORIES[win.tag] || CATEGORIES['Sonstiges'];
+                      const isEditingThisWin = editingWinId === win.id;
+
+                      if (isEditingThisWin) {
+                        return (
+                          <form
+                            key={win.id}
+                            onSubmit={saveEditedWin}
+                            className="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-indigo-300 dark:border-indigo-700 space-y-3"
+                          >
+                            <textarea
+                              rows={3}
+                              value={editWinText}
+                              onChange={(e) => setEditWinText(e.target.value)}
+                              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              required
+                            />
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <select
+                                value={editWinTag}
+                                onChange={(e) => setEditWinTag(e.target.value)}
+                                className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs"
+                              >
+                                {Object.keys(CATEGORIES).map(c => (
+                                  <option key={c} value={c}>{t.categories[c] || c}</option>
+                                ))}
+                              </select>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingWinId(null)}
+                                  className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                >
+                                  {t.cancelBtn}
+                                </button>
+                                <button
+                                  type="submit"
+                                  className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white"
+                                >
+                                  {t.saveBtn}
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={win.id}
+                          className="group relative bg-slate-50/70 dark:bg-slate-800/40 p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800 transition-all flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-2 mb-3">
+                              <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${catStyle.color}`}>
+                                {t.categories[win.tag] || win.tag}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium mr-1">
+                                  {win.date}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => startEditingWin(win)}
+                                  className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                                  title={t.editBtnLabel}
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteWin(win.id)}
+                                  className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                  title={t.deleteBtnLabel}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
+                              „{win.text}“
+                            </p>
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-700/40 flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>{t.proudMoment}</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </main>
+
+        {/* --- MODAL TUTO D'UTILISATION EN FRANÇAIS --- */}
+        {showTutorialModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 my-8">
+              <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                    <BookOpen className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
+                      Guide d'utilisation (Tutoriel)
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                      Comment tirer le meilleur parti de votre Boussole Focus & Réussite
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowTutorialModal(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                  <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+                    <Edit2 className="w-4 h-4 text-indigo-500" />
+                    1. Créer, modifier et supprimer vos objectifs
+                  </h4>
+                  <p>
+                    Cliquez sur le bouton <strong>« Modifier »</strong> (icône crayon) à droite de n'importe quel objectif pour changer son titre, sa rubrique (Français, Allemand, Anglais, Fitness, etc.) ou sa priorité. Vous pouvez aussi ajouter vos propres objectifs via <strong>« + Nouvel Objectif »</strong>.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                  <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+                    <Eraser className="w-4 h-4 text-rose-500" />
+                    2. Remettre les compteurs à zéro
+                  </h4>
+                  <p>
+                    Tous vos compteurs (série active, bilan de la semaine, pourcentage) démarrent à <strong>0</strong>. À tout moment (par exemple au début d'une nouvelle semaine), cliquez sur <strong>« Compteurs à 0 »</strong> dans la barre supérieure pour décocher toutes les cases tout en conservant vos objectifs personnalisés.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                  <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+                    <Calendar className="w-4 h-4 text-emerald-500" />
+                    3. Suivi quotidien & Grille des Habitudes
+                  </h4>
+                  <p>
+                    Cochez vos tâches accomplies chaque jour. Vous pouvez changer de jour (Lun – Dim) ou cliquer directement dans la <strong>Grille des Habitudes</strong> à droite pour valider vos progrès sur toute la semaine.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                  <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+                    <Wand2 className="w-4 h-4 text-amber-500" />
+                    4. Outils d'Intelligence Artificielle (Gemini)
+                  </h4>
+                  <p>
+                    Utilisez <strong>« Étapes IA »</strong> sous un objectif pour obtenir un plan d'action en 3 étapes, <strong>« Idées IA »</strong> pour générer de nouvelles habitudes, et le <strong>Coach IA Gemini</strong> pour analyser votre semaine.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={() => setShowTutorialModal(false)}
+                  className="px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm cursor-pointer"
+                >
+                  J'ai compris, commencer !
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- MODAL FÜR RESET BESTÄTIGUNG --- */}
+        {showResetModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <RotateCcw className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    {t.resetModalTitle}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {t.resetModalSubtitle}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                {t.resetModalText}
+              </p>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setShowResetModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+                >
+                  {t.cancelBtn}
+                </button>
+                <button
+                  onClick={handleResetData}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-sm"
+                >
+                  {t.confirmResetBtn}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
